@@ -52,6 +52,8 @@ worker方式部署的，如果使用了最新脚本无法访问前端网页，�
 - TG_TOKEN = TG 机器人的 token
 - SUBJECT = 邮件主题
 - BODY = 邮件正文
+- NEWS_API_KEY = 申请的新闻api的key
+- NEWS_COUNTRY = 新闻国家
 
 ### 绑定KV
 - KV绑定变量名/KV空间名：AUTO_EMAIL
