@@ -12,14 +12,60 @@ function checkEnvironmentVariables(env) {
   }
 }
 
-//加载邮件配置
-function loadEmailConfig(env) {
+// 修改后的新闻获取函数（获取前5条新闻）
+async function fetchDailyNews(env) {
+  const apiKey = env.NEWS_API_KEY;
+  const country = env.NEWS_COUNTRY || 'us';
+  const apiUrl = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${apiKey}`;
+
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+      }
+    });
+    const data = await response.json();
+
+    if (data.status === 'ok' && data.articles?.length > 0) {
+      // 取前5条新闻（新增slice操作）
+      const top5Articles = data.articles.slice(0, 5);
+      
+      // 构建包含5条新闻的对象数组
+      return top5Articles.map(article => ({
+        title: article.title,
+        description: article.description || "点击链接查看完整报道"
+      }));
+    }
+    throw new Error('新闻数据获取失败'+ data.message);
+  } catch (error) {
+    console.error('新闻接口调用失败:', error);
+    // 返回默认的5条示例内容
+    return [
+      { title: "今日热点新闻1", description: "新闻获取失败，默认内容1" },
+      { title: "今日热点新闻2", description: "新闻获取失败，默认内容2" },
+      { title: "今日热点新闻3", description: "新闻获取失败，默认内容3" },
+      { title: "今日热点新闻4", description: "新闻获取失败，默认内容4" },
+      { title: "今日热点新闻5", description: "新闻获取失败，默认内容5" }
+    ];
+  }
+}
+
+// 修改后的邮件配置加载函数
+async function loadEmailConfig(env) {
   const from_email = env.FROM_EMAIL;
   const to_emails_raw = env.TO_EMAILS;
-  const subject = (env && env.SUBJECT) || "测试";
-  const body = (env && env.BODY) || "这是一封自动化测试邮件";
+  // 获取前5条新闻
+  const newsList = await fetchDailyNews(env);
+  
+  // 构建邮件内容（新增格式处理）
+  const subject = env.SUBJECT || "今日Top5新闻速览";
+  const body = newsList.map((news, index) => 
+    `<h3>${index + 1}. ${news.title}</h3><p>${news.description}</p>`
+  ).join('<hr>');
 
-  if (!from_email || !to_emails_raw || !subject || !body) {
+  // 保持原有验证逻辑...
+  if (!from_email || !to_emails_raw) {
       throw new Error("邮件配置缺失，请检查环境变量设置。");
   }
 
@@ -32,7 +78,7 @@ function loadEmailConfig(env) {
       throw new Error("收件人列表为空，请检查 TO_EMAILS 配置。");
   }
 
-  return { from_email, to_emails, subject, body };
+  return { from_email, to_emails,  subject, body };
 }
 
 // 延迟函数
@@ -460,7 +506,7 @@ async function executeEmailTask(env, options = {}) {
   
   try {
       // 加载邮件配置
-      const emailConfig = loadEmailConfig(env);
+      const emailConfig = await loadEmailConfig(env);
       const { from_email, to_emails, subject, body } = emailConfig;
 
       const successEmails = [];
