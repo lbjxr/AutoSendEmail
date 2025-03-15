@@ -1,6 +1,6 @@
 # 项目介绍
 - 这是一个可以定时向邮箱发送邮件的工具，邮件内容默认是获取国际新闻列表。此项目主要目的是邮箱账号“养号”用途。当然你也可以用于每天定时获取国际新闻到你得邮箱里面。
-- 项目是基于[yutian81](https://github.com/yutian81) 的 [auto-email](https://github.com/yutian81/auto-email) 的项目改造而来，如果对你有用请给原作者和我一个start。
+- 项目是基于[yutian81](https://github.com/yutian81) 的 [auto-email](https://github.com/yutian81/auto-email) 的项目改造而来，如果对你有用请给原作者和我一个star。
 
 ## 部署方式一：github action（简单）
 
