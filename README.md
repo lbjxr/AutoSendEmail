@@ -1,6 +1,6 @@
 # 项目介绍
 - 这是一个可以定时向邮箱发送邮件的工具，邮件内容默认是获取国际新闻列表。此项目主要目的是邮箱账号“养号”用途。当然你也可以用于每天定时获取国际新闻到你得邮箱里面。
-- 项目是基于 <https://github.com/yutian81/auto-email> 的项目改造而来，如果对你有用请给原作者一个start。
+- 项目是基于[yutian81](https://github.com/yutian81) 的 [auto-email](https://github.com/yutian81/auto-email) 的项目改造而来，如果对你有用请给原作者和我一个start。
 
 ## 部署方式一：github action（简单）
 
@@ -59,19 +59,47 @@
 
 ![image](https://github.com/user-attachments/assets/327f8a9c-936e-4022-926e-2f7cdd713e41)
 
--默认为每周一次。可自行在action的yml配置文件中修改自动执行频率。时间是以UTC为准的，国内的时间是UTC+8，比定时任务快8小时，所以如果想早上9点收到消息，应该设置成0 1 * * 1
+- 默认为每周一次。可自行在action的yml配置文件中修改自动执行频率。时间是以UTC为准的，国内的时间是UTC+8，比定时任务快8小时，所以如果想早上9点收到消息，应该设置成0 1 * * 1
 
 ![image](https://github.com/user-attachments/assets/9d977579-c30d-44ea-b05e-f42d18751946)
 
-## 部署方式二：cf worker
+## 部署方式二：cf worker（较为复杂）
 
-到 [resend](https://resend.com/) 注册一个账号，申请 `apitoken`，并且绑定一个域名，根据 resend 的提示到域名托管商处添加相应的 dns 解析记录，有三个 `txt` 和一个 `mx` 记录。
+- 此方法是利用一个自定义邮箱发送的服务商功能，可以不使用自己现有的邮箱账号作为发送人。同时经过优化，发送内容更加真实（目前是调用新闻接口获取当天最新新闻标题作为邮件内容发送）
+- 此方法前置条件：
+  - 申请注册一个cloudflare账号
+  - 申请注册一个resend服务商账号，获取apitoken
+  - 拥有一个域名，用于绑定创建域名邮箱账号
+  - 申请注册一个news-api服务商账号，获取key，用于获取当天最新新闻内容
+### 申请注册cloudflare账号
+请咨询搜索教程，一个邮箱就可以申请完成。
 
-在 cf 新建一个 wokrer，粘贴仓库内 `resend.js` 中的内容
+### 申请注册resend账号
+- 到 [resend](https://resend.com/signup) 注册一个账号，邮箱账号即可完成注册
 
-已完成前端界面
+![image](https://github.com/user-attachments/assets/3febcaa6-6667-4536-889e-6805918eb3f7)
 
-![](https://pan.811520.xyz/2025-01/1736779999-%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250113224844.webp)
+- 登录后，绑定域名，创建域名邮箱，根据 resend 的提示到域名托管商处添加相应的 dns 解析记录，有三个 `txt` 和一个 `mx` 记录。注意最后一个txt名称，要复制完整，页面显示为三个点了。如果解析正常，域名会显示verified
+
+![image](https://github.com/user-attachments/assets/90462517-c4d5-4fb2-9e49-6c785ee16663)
+
+![image](https://github.com/user-attachments/assets/d648a6dd-1069-460c-beee-6c5b15069b0a)
+
+
+- 申请 `apitoken`
+
+![image](https://github.com/user-attachments/assets/66446494-402b-445d-bded-99cb51ee928d)
+
+### 申请注册一个news-api服务商账号
+- 访问[newsapi官网](https://newsapi.org/register) ,注册账号，完成后登录。默认进入个人账号页面，复制API KEY
+
+![image](https://github.com/user-attachments/assets/a5eebfd6-6db5-465d-a9ea-6e0705302538)
+
+***说明***
+项目默认是抓取美国最新的新闻(https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=2d9f0fbd)。如果你需要抓取其他新闻。请自己到官网首页看api文档说明
+
+### 部署代码
+- 在 cf 新建一个 worker，粘贴仓库内 `resend.js` 中的内容
 
 ### 设置以下环境变量：
 
@@ -86,8 +114,13 @@
 - NEWS_API_KEY = 申请的新闻api的key
 - NEWS_COUNTRY = 新闻国家
 
-### 绑定KV
-- KV绑定变量名/KV空间名：AUTO_EMAIL
+### 设置和绑定KV
+- 在CF的控制台，左侧菜单 -> 存储和数据库 -> KV,创建一个KV ，名字为AUTO_EMAIL。
+- 到上面创建的worker中 -> 设置 -> 绑定变量名：AUTO_EMAIL
+
+已完成前端界面
+
+![](https://pan.811520.xyz/2025-01/1736779999-%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250113224844.webp)
 
 ### 设置 `corn` 触发器
-实现定时自动群发邮件，建议每周执行一次
+实现定时自动群发邮件，建议每周执行一次。时间是以UTC为准的，国内的时间是UTC+8，比定时任务快8小时，所以如果想早上9点收到消息，应该设置成0 1 * * 1
