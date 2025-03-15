@@ -72,7 +72,7 @@
   - 拥有一个域名，用于绑定创建域名邮箱账号
   - 申请注册一个news-api服务商账号，获取key，用于获取当天最新新闻内容
 ### 申请注册cloudflare账号
-请咨询搜索教程，一个邮箱就可以申请完成。
+请自行搜索教程，一个邮箱就可以申请完成。[官网地址](https://www.cloudflare.com/zh-cn/)
 
 ### 申请注册resend账号
 - 到 [resend](https://resend.com/signup) 注册一个账号，邮箱账号即可完成注册
@@ -93,10 +93,10 @@
 ### 申请注册一个news-api服务商账号
 - 访问[newsapi官网](https://newsapi.org/register) ,注册账号，完成后登录。默认进入个人账号页面，复制API KEY
 
-![image](https://github.com/user-attachments/assets/a5eebfd6-6db5-465d-a9ea-6e0705302538)
+![image](https://github.com/user-attachments/assets/8719d6e8-d5b9-4b14-bf82-4c9a62da1cbb)
 
 ***说明***
-项目默认是抓取美国最新的新闻(https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=2d9f0fbd)。如果你需要抓取其他新闻。请自己到官网首页看api文档说明
+项目默认是抓取美国最新的新闻(https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=2d9f0fbd)。 如果你需要抓取其他新闻。请自己到官网首页看api文档说明
 
 ### 部署代码
 - 在 cf 新建一个 worker，粘贴仓库内 `resend.js` 中的内容
